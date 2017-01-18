@@ -144,6 +144,7 @@ def build_nn_model(height, width, num_channels):
     :param num_channels: output channels for all convolution layers except the very last
     :return: an untrained Keras model
     '''
+    # input_tensor = Input(shape=(1, height, width))
     input_tensor = Input(shape=(height, width, 1)) # todo change to: input_tensor = Input(shape=(1, height, width)) # after changing file mentioned in forum
     conv1 = Convolution2D(num_channels, DEF_KER_CONVE_HEIGHT, DEF_KER_CONVE_WIDTH, border_mode='same')(input_tensor)
     relu1 = Activation('relu')(conv1)
