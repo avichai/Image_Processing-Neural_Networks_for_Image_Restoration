@@ -5,6 +5,7 @@ from skimage.color import rgb2gray
 import os
 from keras.models import Model
 from keras.layers import Convolution2D, Activation, Input, merge
+from keras.optimizers import Adam
 
 from scipy.ndimage.filters import convolve
 
@@ -154,3 +155,33 @@ def build_nn_model(height, width, num_channels):
 
     model = Model(input=input_tensor, output=last_conv)
     return model
+
+
+def train_model(model, images, corruption_func, batch_size,
+                samples_per_epoch, num_epochs, num_valid_samples):
+    '''
+    train our model
+    :param model: a general neural network model for image restoration
+    :param images: a list of file paths pointing to image files.
+    :param corruption_func: A function receiving a numpy’s array representation
+    of an image as a single argument, and returns a randomly corrupted version
+    of the input image.
+    :param batch_size: the size of the batch of examples for each iteration of SGD.
+    :param samples_per_epoch: The number of samples in each epoch (actual samples, not batches!).
+    :param num_epochs: The number of epochs for which the optimization will run.
+    :param num_valid_samples: The number of samples in the validation set to test on after every epoch.
+    '''
+    num_images = len(images)
+    inputShape = model.get_input_shape_at(0)
+    crop_size = (inputShape[1], inputShape[2]) # todo check if 1 and 2 is good
+    num_train_ims = int(0.8*num_images)
+
+    train_ims_names = images[:num_train_ims]
+    test_ims_name = images[num_train_ims:]
+
+    train_gen = load_dataset(train_ims_names, batch_size, corruption_func, crop_size)
+    test_gen = load_dataset(test_ims_name, batch_size, corruption_func, crop_size)
+
+    model.compile(optimizer=Adam(beta_2=0.9), loss='mse')
+    model.fit_generator(train_gen, samples_per_epoch, num_epochs,
+                        validation_data=test_gen, nb_val_samples=num_valid_samples)

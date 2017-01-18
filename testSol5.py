@@ -4,6 +4,12 @@ import sol5_utils
 import numpy as np
 import matplotlib.pyplot as plt
 
+DEF_NUM_VALID_SMPLES = 20
+
+DEF_NUM_EPOCHS = 5
+
+DEF_SAMPLE_PER_EPOCH = 100
+
 DEF_NUM_CHANNELS = 10
 
 DEF_CROP_SIZE = (200, 200)
@@ -41,12 +47,29 @@ def test_build_nn_model():
     model = sol5.build_nn_model(height, width, num_channels)
 
 
+def test_train_model():
+    height, width = DEF_CROP_SIZE
+    num_channels = DEF_NUM_CHANNELS
+    batch_size = DEF_BATCH_SIZE
+    images = sol5_utils.images_for_denoising()
+    samples_per_epoch = DEF_SAMPLE_PER_EPOCH
+    num_epochs = DEF_NUM_EPOCHS
+    num_valid_samples = DEF_NUM_VALID_SMPLES
+
+    model = sol5.build_nn_model(height, width, num_channels)
+
+    sol5.train_model(model, images, corruption_func, batch_size,
+                samples_per_epoch, num_epochs, num_valid_samples)
+
+
+
 # tests
 # testLoadDataSet
 # testResBlock
 # test_build_nn_model
+# test_train_model
 
-tests = [test_build_nn_model]
+tests = [test_train_model]
 
 def main():
     try:
