@@ -1,0 +1,9 @@
+Q1:
+
+The task of super-resolution is to take a low-res image and estimate its high-res counterpart. The workflow
+you have implemented in this assignment can be used to solve this task as well. While you are not required
+to implement this use-case your self, you will need to answer the following question:
+Q1: suggest how to use the workflow you have implemented in this assignment to train a network that
+could be used for super-resolution. A full answer consists of a description of the corruption function,
+and how to properly use the restore_image() function for this task. For this context only, you could
+optionally add additional operations before calling to restore_image().
