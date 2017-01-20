@@ -121,7 +121,7 @@ def load_dataset(filenames, batch_size, corruption_func, crop_size):
                                              start_height:start_height + height,
                                              start_width:start_width + width] - IM_NORM_FACTOR
                 counter += 1
-        yield (source_batch.astype(np.float32), target_batch.astype(np.float32))
+            yield (source_batch.astype(np.float32), target_batch.astype(np.float32))
 
     return generator()
 
