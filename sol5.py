@@ -99,29 +99,29 @@ def load_dataset(filenames, batch_size, corruption_func, crop_size):
             while len(batch_filenames) != batch_size:
                 filename_ind = np.random.permutation(num_files)[:1][0]
                 cur_filename = filenames[filename_ind]
-                if cur_filename not in batch_filenames:
-                    batch_filenames.append(cur_filename)
-                    if cur_filename not in dic:
-                        cur_image = read_image(cur_filename, 1)
-                        dic[cur_filename] = cur_image
-                    else:
-                        cur_image = dic[cur_filename]
-                    cur_corrupt_image = corruption_func(cur_image)
-                    cur_height = cur_image.shape[HEIGHT]
-                    cur_width = cur_image.shape[WIDTH]
 
-                    start_height = np.random.permutation(cur_height - height)[:1][0]
-                    start_width = np.random.permutation(cur_width - width)[:1][0]
+                batch_filenames.append(cur_filename)
+                if cur_filename not in dic:
+                    cur_image = read_image(cur_filename, 1)
+                    dic[cur_filename] = cur_image
+                else:
+                    cur_image = dic[cur_filename]
+                cur_corrupt_image = corruption_func(cur_image)
+                cur_height = cur_image.shape[HEIGHT]
+                cur_width = cur_image.shape[WIDTH]
 
-                    source_batch[counter, ...] = cur_corrupt_image[
-                                                 start_height:start_height + height,
-                                                 start_width:start_width + width] - IM_NORM_FACTOR
+                start_height = np.random.permutation(cur_height - height)[:1][0]
+                start_width = np.random.permutation(cur_width - width)[:1][0]
 
-                    target_batch[counter, ...] = cur_image[
-                                                 start_height:start_height + height,
-                                                 start_width:start_width + width] - IM_NORM_FACTOR
-                    counter += 1
-            yield (source_batch.astype(np.float32), target_batch.astype(np.float32))
+                source_batch[counter, ...] = cur_corrupt_image[
+                                             start_height:start_height + height,
+                                             start_width:start_width + width] - IM_NORM_FACTOR
+
+                target_batch[counter, ...] = cur_image[
+                                             start_height:start_height + height,
+                                             start_width:start_width + width] - IM_NORM_FACTOR
+                counter += 1
+        yield (source_batch.astype(np.float32), target_batch.astype(np.float32))
 
     return generator()
 
@@ -185,7 +185,7 @@ def train_model(model, images, corruption_func, batch_size,
     test_ims_name = images[num_train_ims:]
 
     train_gen = load_dataset(train_ims_names, batch_size, corruption_func, crop_size)
-    test_gen = load_dataset(test_ims_name, 1, corruption_func, crop_size)
+    test_gen = load_dataset(test_ims_name, batch_size, corruption_func, crop_size)
 
     model.compile(optimizer=Adam(beta_2=0.9), loss='mean_squared_error')
     model.fit_generator(train_gen, samples_per_epoch, num_epochs,
