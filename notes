@@ -1,2 +1,0 @@
-1. check what is the problem on fit_generator
-2. check if putting 1 under test generator is a good idea (putting batch size looks wrong and takes too long)

@@ -3,22 +3,15 @@ import sol5_utils
 
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
 DEF_NUM_VALID_SAMPLES = 1000  # todo change
-
 DEF_NUM_EPOCHS = 5
-
 DEF_SAMPLE_PER_EPOCH = 10000  # todo change
-
 DEF_NUM_CHANNELS_DEN = 48
 DEF_NUM_CHANNELS_DEB = 32
-
 DEF_CROP_SIZE_DEN = (24, 24)
 DEF_CROP_SIZE_DEB = (16, 16)
-
 DEF_BATCH_SIZE = 100
-
 DEF_MIN_SIGMA = 0.0
 DEF_MAX_SIGMA = 0.2
 DEF_KER_LIST = [7]
@@ -54,7 +47,8 @@ def testLoadDataSet():
     # crop_size = (200, 200)
 
     # data_generator = sol5.load_dataset(filenames, batch_size, lambda im: sol5.add_gaussian_noise(im, DEF_MIN_SIGMA, DEF_MAX_SIGMA), crop_size)
-    data_generator = sol5.load_dataset(filenames, batch_size, lambda im: sol5.random_motion_blur(im, DEF_KER_LIST), crop_size)
+    data_generator = sol5.load_dataset(filenames, batch_size, lambda im: sol5.random_motion_blur(im, DEF_KER_LIST),
+                                       crop_size)
 
     source, target = next(data_generator)
 
@@ -204,7 +198,7 @@ def test_random_motion_blur():
 
 
 def test_learn_deblurring_model():
-    model, num_channels = sol5.learn_deblurring_model(quick_mode=False) # todo this one is needed
+    model, num_channels = sol5.learn_deblurring_model(quick_mode=False)  # todo this one is needed
     # model, num_channels = sol5.learn_deblurring_model(quick_mode=True)
 
     images = sol5_utils.images_for_deblurring()
