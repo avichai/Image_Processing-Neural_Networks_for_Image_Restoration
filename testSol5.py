@@ -235,7 +235,7 @@ def test_learn_deblurring_model():
 # test_random_motion_blur
 # test_learn_deblurring_model
 
-tests = [test_restored_image_deb]
+tests = [test_learn_deblurring_model]
 
 
 def main():

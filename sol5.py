@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.misc import imread as imread
 from scipy.ndimage.filters import convolve
 from skimage.color import rgb2gray
@@ -10,35 +9,25 @@ from keras.optimizers import Adam
 
 import sol5_utils
 
-FINALE_OUTPUT_CHANNELS = 1
-
-DEF_RES_BLOCKS = 5
-
-IM_NORM_FACTOR = 0.5
-
-IDENTITY_KERNEL_SIZE = 1
-BINOMIAL_MAT = [0.5, 0.5]
 GRAY = 1
 RGB = 2
 NORM_PIX_FACTOR = 255
-ROWS = 0
-COLS = 1
-LARGEST_IM_INDEX = 0
-DIM_RGB = 3
 
 HEIGHT = 0
 WIDTH = 1
 DEF_KER_CONVE_HEIGHT = 3
 DEF_KER_CONVE_WIDTH = 3
 
+FINALE_OUTPUT_CHANNELS = 1
+DEF_RES_BLOCKS = 5
+IM_NORM_FACTOR = 0.5
+
 DEF_CROP_SIZE_DENOISE = (24, 24)
 DEF_NUM_CHANNELS_DENOISE = 48
 DEF_BATCH_SIZE = 100
-DEF_SAMPLE_PER_EPOCH = 10000  # todo change
-# DEF_SAMPLE_PER_EPOCH = 500  # todo change rm
+DEF_SAMPLE_PER_EPOCH = 10000
 DEF_NUM_EPOCHS_DENOISE = 5
-# DEF_NUM_VALID_SAMPLES = 100  # todo change rm
-DEF_NUM_VALID_SAMPLES = 1000  # todo change
+DEF_NUM_VALID_SAMPLES = 1000
 
 DEF_MIN_SIGMA = 0.0
 DEF_MAX_SIGMA = 0.2
@@ -97,7 +86,6 @@ def load_dataset(filenames, batch_size, corruption_func, crop_size):
     '''
 
     def generator():
-        # todo check if need to store values filenames, batch_size, corruption_func, crop_size
         dic = {}
         num_files = len(filenames)
         height = crop_size[HEIGHT]
@@ -190,18 +178,14 @@ def train_model(model, images, corruption_func, batch_size,
     '''
     num_images = len(images)
     inputShape = model.get_input_shape_at(0)
-    crop_size = (inputShape[-2], inputShape[-1])  # todo check if 1 and 2 is good
+    crop_size = (inputShape[-2], inputShape[-1])
     num_train_ims = int(0.8 * num_images)
 
     train_ims_names = images[:num_train_ims]
     test_ims_name = images[num_train_ims:]
 
     train_gen = load_dataset(train_ims_names, batch_size, corruption_func, crop_size)
-    test_gen = load_dataset(test_ims_name, 1, corruption_func, crop_size)  # todo check if 1 is good
-
-    # model.compile(optimizer=Adam(beta_2=0.9), loss='mse') #todo change to mean_squared_loss
-    # model.fit_generator(train_gen, samples_per_epoch, num_epochs,
-    #                     validation_data=test_gen, nb_val_samples=num_valid_samples)
+    test_gen = load_dataset(test_ims_name, 1, corruption_func, crop_size)
 
     model.compile(optimizer=Adam(beta_2=0.9), loss='mean_squared_error')
     model.fit_generator(train_gen, samples_per_epoch, num_epochs,
@@ -268,12 +252,8 @@ def learn_denoising_model(quick_mode=False):
 
     denoising_model = build_nn_model(height, width, num_channels)
 
-    if os.path.exists(sol5_utils.relpath('./model_den.h')):  # todo rm before submission
-        denoising_model.load_weights(sol5_utils.relpath('./model_den.h'))
-    else:
-        train_model(denoising_model, images, lambda im: add_gaussian_noise(im, DEF_MIN_SIGMA, DEF_MAX_SIGMA),
-                    batch_size, samples_per_epoch, num_epochs, num_valid_samples)
-        denoising_model.save_weights(sol5_utils.relpath('./model_den.h'))
+    train_model(denoising_model, images, lambda im: add_gaussian_noise(im, DEF_MIN_SIGMA, DEF_MAX_SIGMA),
+                batch_size, samples_per_epoch, num_epochs, num_valid_samples)
     return denoising_model, num_channels
 
 
@@ -327,10 +307,6 @@ def learn_deblurring_model(quick_mode=False):
 
     debluring_model = build_nn_model(height, width, num_channels)
 
-    if os.path.exists(sol5_utils.relpath('./model_deb.h')):  # todo rm before submission
-        debluring_model.load_weights(sol5_utils.relpath('./model_deb.h'))
-    else:
-        train_model(debluring_model, images, lambda im: random_motion_blur(im, DEF_KER_LIST), batch_size,
-                    samples_per_epoch, num_epochs, num_valid_samples)
-        debluring_model.save_weights(sol5_utils.relpath('./model_deb.h'))
+    train_model(debluring_model, images, lambda im: random_motion_blur(im, DEF_KER_LIST), batch_size,
+                samples_per_epoch, num_epochs, num_valid_samples)
     return debluring_model, num_channels
