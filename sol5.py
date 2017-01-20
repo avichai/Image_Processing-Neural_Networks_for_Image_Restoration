@@ -36,7 +36,8 @@ DEF_NUM_CHANNELS_DENOISE = 48
 DEF_BATCH_SIZE = 100
 DEF_SAMPLE_PER_EPOCH = 10000  # todo change
 DEF_NUM_EPOCHS_DENOISE = 5
-DEF_NUM_VALID_SAMPLES = 1000  # todo change
+DEF_NUM_VALID_SAMPLES = 100  # todo change
+# DEF_NUM_VALID_SAMPLES = 1000  # todo change
 
 DEF_MIN_SIGMA = 0.0
 DEF_MAX_SIGMA = 0.2
@@ -266,8 +267,7 @@ def learn_denoising_model(quick_mode=False):
         denoising_model.load_weights('./model_den.h')
     else:
         train_model(denoising_model, images, lambda im: add_gaussian_noise(im, DEF_MIN_SIGMA, DEF_MAX_SIGMA),
-                    batch_size,
-                    samples_per_epoch, num_epochs, num_valid_samples)
+                    batch_size, samples_per_epoch, num_epochs, num_valid_samples)
         denoising_model.save_weights(sol5_utils.relpath('./model_den.h'))
     return denoising_model, num_channels
 
