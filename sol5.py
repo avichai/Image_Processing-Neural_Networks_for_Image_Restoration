@@ -177,8 +177,8 @@ def train_model(model, images, corruption_func, batch_size,
     :param num_valid_samples: The number of samples in the validation set to test on after every epoch.
     '''
     num_images = len(images)
-    inputShape = model.get_input_shape_at(0)
-    crop_size = (inputShape[-2], inputShape[-1])
+    input_shape = model.get_input_shape_at(0)
+    crop_size = (input_shape[-2], input_shape[-1])
     num_train_ims = int(0.8 * num_images)
 
     train_ims_names = images[:num_train_ims]
@@ -239,7 +239,7 @@ def learn_denoising_model(quick_mode=False):
     num_channels = DEF_NUM_CHANNELS_DENOISE
     images = sol5_utils.images_for_denoising()
 
-    if quick_mode == False:
+    if not quick_mode:
         batch_size = DEF_BATCH_SIZE
         samples_per_epoch = DEF_SAMPLE_PER_EPOCH
         num_epochs = DEF_NUM_EPOCHS_DENOISE
@@ -294,7 +294,7 @@ def learn_deblurring_model(quick_mode=False):
     num_channels = DEF_NUM_CHANNELS_DEBLUR
     images = sol5_utils.images_for_deblurring()
 
-    if quick_mode == False:
+    if not quick_mode:
         batch_size = DEF_BATCH_SIZE
         samples_per_epoch = DEF_SAMPLE_PER_EPOCH
         num_epochs = DEF_NUM_EPOCHS_DEBLUR
