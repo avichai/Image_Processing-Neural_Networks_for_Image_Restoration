@@ -1,9 +1,29 @@
 Q1:
 
-The task of super-resolution is to take a low-res image and estimate its high-res counterpart. The workflow
-you have implemented in this assignment can be used to solve this task as well. While you are not required
-to implement this use-case your self, you will need to answer the following question:
-Q1: suggest how to use the workflow you have implemented in this assignment to train a network that
-could be used for super-resolution. A full answer consists of a description of the corruption function,
-and how to properly use the restore_image() function for this task. For this context only, you could
-optionally add additional operations before calling to restore_image().
+Low resolution:
+For the task of super-resolution, we'll first need to implement the following lower resolution function for
+training and then testing your model:
+corrupted = lower_resolution(image)
+
+which should randomly choose the scale of the image we wish to down sample to
+(using blurring using gaussian kernel that should also be chosen randomly from some list of
+odd kernel sizes) after down scaling, the function should expand the image to the original
+size of the input image (with the lose of resolution) and return it.
+
+The input arguments to the function are:
+image – a grayscale image with values in the [0, 1] range of type float32
+
+Training a Denoising Model:
+Given the function from the previous section, we should implement the following function which will
+return a trained super-resolution model, and the number of channels used in its construction:
+model, num_channels = learn_super_res_model()
+
+The above method should train a network which expect patches of size 24×24,
+using 48 channels for all but the last layer, the corruption function is described above.
+Finally, we use 100 images in a batch, 10000 samples per epoch, 5 epochs overall and 1000
+samples for testing on the validation set.
+
+After implementing this function, restoring a corrupted function is pretty straight
+forward - give it to the restore_image function with the model you train and
+num_channels returned from the train function - the output of this function will
+be the super-resolution image as wished.

@@ -35,9 +35,10 @@ DEF_CROP_SIZE_DENOISE = (24, 24)
 DEF_NUM_CHANNELS_DENOISE = 48
 DEF_BATCH_SIZE = 100
 DEF_SAMPLE_PER_EPOCH = 10000  # todo change
+# DEF_SAMPLE_PER_EPOCH = 500  # todo change rm
 DEF_NUM_EPOCHS_DENOISE = 5
-DEF_NUM_VALID_SAMPLES = 100  # todo change
-# DEF_NUM_VALID_SAMPLES = 1000  # todo change
+# DEF_NUM_VALID_SAMPLES = 100  # todo change rm
+DEF_NUM_VALID_SAMPLES = 1000  # todo change
 
 DEF_MIN_SIGMA = 0.0
 DEF_MAX_SIGMA = 0.2
@@ -196,9 +197,13 @@ def train_model(model, images, corruption_func, batch_size,
     test_ims_name = images[num_train_ims:]
 
     train_gen = load_dataset(train_ims_names, batch_size, corruption_func, crop_size)
-    test_gen = load_dataset(test_ims_name, batch_size, corruption_func, crop_size)
+    test_gen = load_dataset(test_ims_name, 1, corruption_func, crop_size)  # todo check if 1 is good
 
-    model.compile(optimizer=Adam(beta_2=0.9), loss='mse')
+    # model.compile(optimizer=Adam(beta_2=0.9), loss='mse') #todo change to mean_squared_loss
+    # model.fit_generator(train_gen, samples_per_epoch, num_epochs,
+    #                     validation_data=test_gen, nb_val_samples=num_valid_samples)
+
+    model.compile(optimizer=Adam(beta_2=0.9), loss='mean_squared_error')
     model.fit_generator(train_gen, samples_per_epoch, num_epochs,
                         validation_data=test_gen, nb_val_samples=num_valid_samples)
 
@@ -264,7 +269,7 @@ def learn_denoising_model(quick_mode=False):
     denoising_model = build_nn_model(height, width, num_channels)
 
     if os.path.exists(sol5_utils.relpath('./model_den.h')):  # todo rm before submission
-        denoising_model.load_weights('./model_den.h')
+        denoising_model.load_weights(sol5_utils.relpath('./model_den.h'))
     else:
         train_model(denoising_model, images, lambda im: add_gaussian_noise(im, DEF_MIN_SIGMA, DEF_MAX_SIGMA),
                     batch_size, samples_per_epoch, num_epochs, num_valid_samples)
@@ -293,7 +298,7 @@ def random_motion_blur(image, list_of_kernel_sizes):
     :return: simulate motion blur on the given image
     '''
     num_kernels = len(list_of_kernel_sizes)
-    kernel_ind = np.random.permutation(num_kernels)
+    kernel_ind = np.random.permutation(num_kernels)[0]
     kernel_size = list_of_kernel_sizes[kernel_ind]
     angle = np.random.uniform(0, np.pi)
     return add_motion_blur(image, kernel_size, angle)
@@ -322,8 +327,8 @@ def learn_deblurring_model(quick_mode=False):
 
     debluring_model = build_nn_model(height, width, num_channels)
 
-    if os.path.exists(sol5_utils.relpath('./model_den.h')):  # todo rm before submission
-        debluring_model.load_weights('./model_deb.h')
+    if os.path.exists(sol5_utils.relpath('./model_deb.h')):  # todo rm before submission
+        debluring_model.load_weights(sol5_utils.relpath('./model_deb.h'))
     else:
         train_model(debluring_model, images, lambda im: random_motion_blur(im, DEF_KER_LIST), batch_size,
                     samples_per_epoch, num_epochs, num_valid_samples)
